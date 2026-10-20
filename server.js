@@ -54,6 +54,19 @@ app.post('/api/bookings', async (req, res) => {
         res.status(500).json({ success: false, error: 'Αποτυχία αποθήκευσης στη βάση.' });
     }
 });
+// --- ΝΕΟ ENDPOINT: Επιστρέφει τις κρατημένες ημερομηνίες ανά βίλα ---
+app.get('/api/bookings/:villaId', async (req, res) => {
+    try {
+        const { villaId } = req.params;
+        const query = `SELECT checkin_date, checkout_date FROM bookings WHERE villa_id = $1`;
+        const result = await pool.query(query, [villaId]);
+        
+        res.status(200).json({ success: true, bookings: result.rows });
+    } catch (error) {
+        console.error("Σφάλμα κατά την ανάκτηση κρατήσεων:", error);
+        res.status(500).json({ success: false, error: 'Αποτυχία ανάκτησης δεδομένων.' });
+    }
+});
 app.listen(PORT, () => {
     console.log(`Ο διακομιστής τρέχει στο http://localhost:${PORT}`);
 });
